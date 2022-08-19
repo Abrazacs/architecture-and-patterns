@@ -3,29 +3,35 @@ package ru.sergeysemenov;
 import ru.sergeysemenov.domain.HttpRequest;
 
 import java.util.Deque;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RequestParser {
 
     public HttpRequest parse (Deque<String> rawRequest){
-        HttpRequest httpRequest = new HttpRequest();
-        String[] firstLine = rawRequest.pollFirst().split(" ");
-        httpRequest.setMethod(firstLine[0]);
-        httpRequest.setUrl(firstLine[1]);
 
+        String[] firstLine = rawRequest.pollFirst().split(" "); // получаем метод и url
+
+        Map<String, String> headers = new HashMap<>(); // получаем все заголовки
         while (!rawRequest.isEmpty()){
             String line = rawRequest.pollFirst();
             if(line.isBlank()){
                 break;
             }
             String[] header = line.split(": ");
-            httpRequest.getHeaders().put(header[0],header[1]);
+            headers.put(header[0],header[1]);
         }
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(); // получаем тело запроса
         while (!rawRequest.isEmpty()){
             sb.append(rawRequest.pollFirst());
         }
-        httpRequest.setBody(sb.toString());
-        return httpRequest;
+
+        return HttpRequest.createBuilder()
+                .withMethod(firstLine[0])
+                .withUrl(firstLine[1])
+                .withHeaders(headers)
+                .withBody(sb.toString())
+                .build();
     }
 }

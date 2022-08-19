@@ -7,6 +7,8 @@ import ru.sergeysemenov.services.SocketService;
 
 import java.io.IOException;
 import java.util.Deque;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class ReuqestHandler implements Runnable {
@@ -32,21 +34,26 @@ public class ReuqestHandler implements Runnable {
         Deque<String> rawRequest = socketService.readRequest();
         HttpRequest req = requestParser.parse(rawRequest);
 
+        Map<String, String> headersForResponse = new HashMap<>();
+        headersForResponse.put("Content-Type", "text/html; charset=utf-8");
+
         if (!fileService.exists(req.getUrl())) {
-            HttpResponse resp = new HttpResponse();
-            resp.setStatusCode(404);
-            resp.setStatusCodeName("NOT_FOUND");
-            resp.getHeaders().put("Content-Type", "text/html; charset=utf-8");
-            socketService.writeResponse(responseSerializer.serialize(resp));
+            socketService.writeResponse(responseSerializer.serialize(
+                    HttpResponse.createBuilder()
+                    .withStatusCode(404)
+                    .withStatusCodeName("NOT_FOUND")
+                    .withHeaders(headersForResponse)
+                    .build()));
             return;
         }
 
-        HttpResponse resp = new HttpResponse();
-        resp.setStatusCode(200);
-        resp.setStatusCodeName("OK");
-        resp.getHeaders().put("Content-Type", "text/html; charset=utf-8");
-        resp.setBody(fileService.readFile(req.getUrl()));
-        socketService.writeResponse(responseSerializer.serialize(resp));
+        socketService.writeResponse(responseSerializer.serialize(
+                HttpResponse.createBuilder()
+                        .withStatusCode(200)
+                        .withStatusCodeName("OK")
+                        .withHeaders(headersForResponse)
+                        .withBody(fileService.readFile(req.getUrl()))
+                        .build()));
 
         try {
             socketService.close();
