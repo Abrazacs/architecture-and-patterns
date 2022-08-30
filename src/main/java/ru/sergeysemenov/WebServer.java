@@ -14,7 +14,7 @@ import java.net.Socket;
 
 public class WebServer {
 
-    public static void main(String[] args) throws ClassNotFoundException {
+    public static void main(String[] args) {
         ServerConfig config = ServerConfigFactory.create(args);
         try (ServerSocket serverSocket = new ServerSocket(config.getPort())){
             System.out.println("Server started");
@@ -33,15 +33,7 @@ public class WebServer {
                                 new FileService(config.getWww()))
                 )).start();
             }
-        }catch (IOException e){
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
+        }catch (IOException | InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException | ClassNotFoundException e){
             e.printStackTrace();
         }
     }

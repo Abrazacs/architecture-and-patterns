@@ -24,7 +24,7 @@ public class MethodHandlerFactory {
         List<MethodHandler> handlers = new ArrayList<>();
         MethodHandlerImpl next = null;
         MethodHandler handler;
-        for (int i = 0; i < sortedListOfClasses.size(); i++) {
+        for (int i = sortedListOfClasses.size()-1; i > 0 ; i--) {
             if (!sortedListOfClasses.get(i).equals(Class.forName("ru.sergeysemenov.handler.GetMethodHandler"))){
                 handler = getMethodHandlerFromClass(next, socketService, responseSerializer, sortedListOfClasses.get(i));
                 handlers.add(handler);
