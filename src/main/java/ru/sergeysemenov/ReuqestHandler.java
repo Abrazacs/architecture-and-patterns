@@ -1,32 +1,26 @@
 package ru.sergeysemenov;
 
 import ru.sergeysemenov.domain.HttpRequest;
-import ru.sergeysemenov.domain.HttpResponse;
-import ru.sergeysemenov.services.FileService;
+import ru.sergeysemenov.handler.MethodHandler;
 import ru.sergeysemenov.services.SocketService;
 
 import java.io.IOException;
 import java.util.Deque;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class ReuqestHandler implements Runnable {
 
     private final SocketService socketService;
-    private final FileService fileService;
     private final RequestParser requestParser;
-    private final ResponseSerializer responseSerializer;
+    private final MethodHandler methodHandler;
 
 
     public ReuqestHandler(SocketService socketService,
-                          FileService fileService,
                           RequestParser requestParser,
-                          ResponseSerializer responseSerializer) {
+                          MethodHandler methodHandler) {
         this.socketService = socketService;
-        this.fileService = fileService;
         this.requestParser = requestParser;
-        this.responseSerializer = responseSerializer;
+        this.methodHandler = methodHandler;
     }
 
     @Override
@@ -34,26 +28,7 @@ public class ReuqestHandler implements Runnable {
         Deque<String> rawRequest = socketService.readRequest();
         HttpRequest req = requestParser.parse(rawRequest);
 
-        Map<String, String> headersForResponse = new HashMap<>();
-        headersForResponse.put("Content-Type", "text/html; charset=utf-8");
-
-        if (!fileService.exists(req.getUrl())) {
-            socketService.writeResponse(responseSerializer.serialize(
-                    HttpResponse.createBuilder()
-                    .withStatusCode(404)
-                    .withStatusCodeName("NOT_FOUND")
-                    .withHeaders(headersForResponse)
-                    .build()));
-            return;
-        }
-
-        socketService.writeResponse(responseSerializer.serialize(
-                HttpResponse.createBuilder()
-                        .withStatusCode(200)
-                        .withStatusCodeName("OK")
-                        .withHeaders(headersForResponse)
-                        .withBody(fileService.readFile(req.getUrl()))
-                        .build()));
+        methodHandler.handle(req);
 
         try {
             socketService.close();

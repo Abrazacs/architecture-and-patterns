@@ -10,9 +10,9 @@ public class RequestParser {
 
     public HttpRequest parse (Deque<String> rawRequest){
 
-        String[] firstLine = rawRequest.pollFirst().split(" "); // получаем метод и url
+        String[] firstLine = rawRequest.pollFirst().split(" ");
 
-        Map<String, String> headers = new HashMap<>(); // получаем все заголовки
+        Map<String, String> headers = new HashMap<>();
         while (!rawRequest.isEmpty()){
             String line = rawRequest.pollFirst();
             if(line.isBlank()){
@@ -22,7 +22,7 @@ public class RequestParser {
             headers.put(header[0],header[1]);
         }
 
-        StringBuilder sb = new StringBuilder(); // получаем тело запроса
+        StringBuilder sb = new StringBuilder();
         while (!rawRequest.isEmpty()){
             sb.append(rawRequest.pollFirst());
         }
