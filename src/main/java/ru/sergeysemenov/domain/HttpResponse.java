@@ -1,5 +1,6 @@
 package ru.sergeysemenov.domain;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class HttpResponse {
@@ -8,7 +9,7 @@ public class HttpResponse {
 
     private String statusCodeName;
 
-    private Map<String, String> headers;
+    private Map<String, String> headers = new HashMap<>();
 
     private String body;
 
@@ -51,8 +52,8 @@ public class HttpResponse {
             return this;
         }
 
-        public Builder withHeaders(Map<String, String> headers){
-            this.httpResponse.headers = headers;
+        public Builder withHeader(String key, String value){
+            this.httpResponse.getHeaders().put(key, value);
             return this;
         }
 
